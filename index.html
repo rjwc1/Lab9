@@ -54,19 +54,128 @@
     <button>Console Trace</button>
     <button>Trigger a Global Error</button>
   </section>
+  
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "9de3e540787c45c1acc0eec50c6615d4"
+    });
+  </script>  
 
   <script>
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        let output = document.querySelector('output');
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
+        let operator = document.querySelector('#operator').value;
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (err) {
+        alert('Calculator error');
+      } finally {
+        console.log('Finished');
+      }
     });
+    
+    TrackJS.track('Testing TrackJS!');
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+
+    // console log
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Console log demo');
+    });
+
+    // console error
+    errorBtns[1].addEventListener('click', () => {
+      console.error('Console error demo');
+    });
+
+    // console dir
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(document.head); 
+    });
+
+    // console dirxml
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(document);  
+    });
+
+    // console group
+    const label = 'console log group';
+
+    errorBtns[4].addEventListener('click', () => {  
+      console.group(label);
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.groupEnd(label);  
+    });
+
+    // console table
+    errorBtns[6].addEventListener('click', () => {
+      console.table([
+        {
+          first: 'bob',
+          last: 'carl',
+        },
+        {
+          first: 'cham',
+          last: 'hui',
+          birthday: '12231985',
+        },
+        {
+          first: 'Ralph',
+          last: 'Robinson',
+          age: 23
+        }
+      ]);
+    });
+
+    // console timer
+    let timerLabel = "Console timer";
+    errorBtns[7].onclick = function timerStartBtn() {
+      console.time(timerLabel);
+    };
+
+    errorBtns[8].onclick = function timerEndBtn() {
+      console.timeEnd(timerLabel);
+    };
+
+    // console trace
+    errorBtns[9].addEventListener('click', () => {
+      const first = () => { second(); };
+      const second = () => { third(); };
+      const third = () => { fourth(); };
+      const fourth = () => { console.trace(); };
+      first();
+    });
+
+    class customError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "CustomError";
+      }
+    }
+
+    function customErrorFunction() {
+      TrackJS.track('Custom error!');
+      throw new customError("Custom Error");
+    }
+
+    // global error
+    errorBtns[10].onclick = function globalErrorBtn() {
+      customErrorFunction();
+    };
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log(message);
+      console.log("Line: " + lineno + "  Column: " + colno);
+      console.log("Source: " + source);
+      return true;
+    };
   </script>
 </body>
 </html>
